@@ -1,0 +1,4 @@
+## python==3.10.0
+opencv-contrib-python>=4.7.0  # Use contrib for ArUco support; >=4.7 for latest API
+numpy
+packaging  # For version parsing
