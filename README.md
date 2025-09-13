@@ -1,27 +1,27 @@
 # QR Code Detection Project
-This script for QR code detection and decoding pipeline using OpenCV. It has been designed to handle noisy, rotated, or low-contrast images. 
 
-It leverages ArUco markers for QR localization/detection when available and falls back to full-image processing with multiple preprocessing variants when markers are absent. 
+A robust QR code detection and decoding pipeline using OpenCV, designed to handle challenging real-world conditions including noisy, rotated  or low-contrast.
 
-This pipeline outputs bounding boxes, decoded text, and visualizations, with optional debugged images for analysis.
+## Prerequisites
 
-## Setup
+- Python >= 3.10
+- Virtual environment (recommended)
+- OpenCV with contrib modules
 
-### Prerequesites
+## Installation
 
-Python=>3.10
-Virtual environment (recommended)
-
-### Installation
-
-Unzip the script folder.
-Create and activate a virtual environment:
+1. Create and activate virtual environment
 ```
 python -m venv .venv
-.venv/bin/activate  # On Linux(Ubuntu) and MacOS: source .venv\Scripts\activate
+
+# Activate on Windows
+.venv\Scripts\activate
+
+# Activate on Linux/MacOS
+source .venv/bin/activate
 ```
 
-Install dependencies:
+2. Install dependencies
 ```
 pip install -r requirements.txt
 ```
@@ -33,26 +33,98 @@ numpy
 packaging
 ```
 
-## Running the Pipeline Script
-Process images in the images/ directory and save results to outputs/:
+## Usage
+
+### Basic Usage
+Process images in the default `images/` directory:
 ```
-python detect_qr.py
-```
-or 
-```
-python detect_qr.py --input_dir images --out_dir outputs
+python python_detect_qr.py
 ```
 
-Enable debug mode to save intermediate images in debug/:
+### Custom Directories
+Specify input and output directories:
 ```
-python detect_qr.py --debug
+python python_detect_qr.py --input_dir path/to/images --out_dir path/to/outputs
 ```
-or
+
+### Debug Mode
+Save intermediate processing images for analysis:
 ```
-python detect_qr.py --input_dir images --out_dir outputs --debug
+python python_detect_qr.py --debug
 ```
+
+### Advanced Options
+```
+python python_detect_qr.py \
+    --input_dir images \
+    --out_dir outputs \
+    --debug \
+    --marker_ids 43 44 101 102 \
+    --log_level DEBUG
+```
+
+### Command Line Arguments
+
+| Argument | Default | Description |
+|----------|---------|-------------|
+| `--input_dir` | `images` | Directory containing input images |
+| `--out_dir` | `outputs` | Directory to save output visualizations |
+| `--debug` | `False` | Save intermediate debug images |
+| `--marker_ids` | `[43, 44, 101, 102]` | ArUco marker IDs to detect |
+| `--log_level` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
 
 ## Output
-1. Console: For each image, prints <filename>, detected=<True|False>, decoded_text="<text>", bbox=[[x1,y1],...] (empty if undetected).
-2. Visualizations: Saves <filename>_result.jpg in outputs/ with green polygon and text (if decoded) or red polygon (if detected only).
-3. Debug: If --debug, saves intermediates (grayscale, ArUco input, markers, cropped, variants, enhanced ROI) to debug/<filename>/.
+
+### 1. Console Output
+For each processed image, displays:
+```
+2024-01-15 10:30:45 - __main__ - INFO - image_name, detected=True, decoded_text="QR_CONTENT", bbox=[[x1,y1], [x2,y2], [x3,y3], [x4,y4]]
+```
+
+### 2. Visualization Files
+Saves `<filename>_result.jpg` in outputs directory:
+- Green polygon + text: Successfully decoded QR
+- Red polygon: QR detected but not decoded
+- No overlay: QR not detected
+
+### 3. Debug Files (when --debug enabled)
+Saves comprehensive debugging information:
+- Grayscale conversion
+- ArUco preprocessing
+- Detected markers
+- Cropped regions
+- All preprocessing variants
+- Enhanced ROI attempts
+
+### 4. Processing Statistics
+At completion, displays:
+```
+Total images: 6
+Successful detections: 6/6 (100.0%)
+Successful decodes: 5/6 (83.3%)
+Average time per image: 2.06 seconds
+```
+
+## Technical Implementation
+
+### Detection Pipeline
+
+```mermaid
+graph TD
+    A[Input Image] --> B[ArUco Marker Detection]
+    B --> C{4 Markers Found?}
+    C -->|Yes| D[Crop to QR Region]
+    C -->|No| E[Use Full Image]
+    D --> F[Direct QR Detection]
+    E --> F
+    F --> G{QR Detected?}
+    G -->|No| H[Multi-Scale Detection]
+    H --> I{Still Not Detected?}
+    I -->|Yes| J[Apply 10 Preprocessing Variants]
+    J --> K[Try Detection on Each Variant]
+    G -->|Yes| L{QR Decoded?}
+    L -->|No| M[Enhanced Decode with Upscaling]
+    L -->|Yes| N[Output Result]
+    M --> N
+    K --> N
+```
