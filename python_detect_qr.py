@@ -393,7 +393,6 @@ def main():
 
     elapsed_time = time.time() - start_time
     logger.info("=" * 50)
-    logger.info(f"Processing complete in {elapsed_time:.2f} seconds")
     logger.info(f"Total images: {total_images}")
     logger.info(f"Successful detections: {successful_detections}/{total_images} ({successful_detections/total_images*100:.1f}%)")
     logger.info(f"Successful decodes: {successful_decodes}/{total_images} ({successful_decodes/total_images*100:.1f}%)")
