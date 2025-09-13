@@ -44,7 +44,7 @@ python python_detect_qr.py
 ### Custom Directories
 Specify input and output directories:
 ```
-python python_detect_qr.py --input_dir path/to/images --out_dir path/to/outputs
+python python_detect_qr.py --input_dir path_to_images --out_dir path_to_outputs
 ```
 
 ### Debug Mode
@@ -55,12 +55,7 @@ python python_detect_qr.py --debug
 
 ### Advanced Options
 ```
-python python_detect_qr.py \
-    --input_dir images \
-    --out_dir outputs \
-    --debug \
-    --marker_ids 43 44 101 102 \
-    --log_level DEBUG
+python python_detect_qr.py --input_dir images --out_dir outputs --debug --marker_ids 43 44 101 102 --log_level DEBUG
 ```
 
 ### Command Line Arguments
