@@ -104,27 +104,3 @@ Successful detections: 6/6 (100.0%)
 Successful decodes: 5/6 (83.3%)
 Average time per image: 2.06 seconds
 ```
-
-## Technical Implementation
-
-### Detection Pipeline
-
-```mermaid
-graph TD
-    A[Input Image] --> B[ArUco Marker Detection]
-    B --> C{4 Markers Found?}
-    C -->|Yes| D[Crop to QR Region]
-    C -->|No| E[Use Full Image]
-    D --> F[Direct QR Detection]
-    E --> F
-    F --> G{QR Detected?}
-    G -->|No| H[Multi-Scale Detection]
-    H --> I{Still Not Detected?}
-    I -->|Yes| J[Apply 10 Preprocessing Variants]
-    J --> K[Try Detection on Each Variant]
-    G -->|Yes| L{QR Decoded?}
-    L -->|No| M[Enhanced Decode with Upscaling]
-    L -->|Yes| N[Output Result]
-    M --> N
-    K --> N
-```
