@@ -96,6 +96,6 @@ At completion, displays:
 ```
 Total images: 6
 Successful detections: 6/6 (100.0%)
-Successful decodes: 5/6 (83.3%)
-Average time per image: 2.06 seconds
+Successful decodes: 6/6 (100.0%)
+Average time per image: 0.63 seconds
 ```
