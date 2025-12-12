@@ -50,3 +50,7 @@ logs/
 test*
 .env
 issues*
+
+images
+debug
+outputs
