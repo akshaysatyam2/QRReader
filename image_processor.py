@@ -25,6 +25,60 @@ def add_watermark(img, text="@akshaysatyam2"):
 
     return cv2.addWeighted(overlay, alpha, img, 1 - alpha, 0)
 
+def create_collage(original, processed_list, titles, output_path):
+    """
+    Creates a clean 3×4 grid: Original top-left, then all 10 processed versions.
+    Text is centered with high-contrast, readable overlay.
+    """
+    cell_w, cell_h = 460, 460
+    padding = 15
+    grid = np.ones((3 * cell_h, 4 * cell_w, 3), dtype=np.uint8) * 250  # Light background
+
+    def add_centered_text(img, text, font=cv2.FONT_HERSHEY_DUPLEX, font_scale=1.1, thickness=3):
+        h, w = img.shape[:2]
+        text_size = cv2.getTextSize(text, font, font_scale, thickness)[0]
+        x = (w - text_size[0]) // 2
+        y = 70  # Fixed from top
+
+        # Dark semi-transparent background
+        overlay = img.copy()
+        cv2.rectangle(overlay, (x - 10, y - text_size[1] - 10), (x + text_size[0] + 10, y + 10), (0, 0, 0), -1)
+        cv2.addWeighted(overlay, 0.5, img, 0.5, 0, img)
+
+        # White bold text
+        cv2.putText(img, text, (x, y), font, font_scale, (255, 255, 255), thickness, cv2.LINE_AA)
+
+    # Place Original (top-left)
+    orig = cv2.resize(original, (cell_w, cell_h))
+    add_centered_text(orig, "ORIGINAL", font_scale=1.6, thickness=4)
+    grid[0:cell_h, 0:cell_w] = orig
+
+    # Place all processed images
+    for i, (proc, title) in enumerate(zip(processed_list, titles)):
+        row = (i + 1) // 4
+        col = (i + 1) % 4
+        y1, y2 = row * cell_h, (row + 1) * cell_h
+        x1, x2 = col * cell_w, (col + 1) * cell_w
+
+        resized = cv2.resize(proc, (cell_w, cell_h))
+        add_centered_text(resized, title, font_scale=1.0, thickness=3)
+        grid[y1:y2, x1:x2] = resized
+
+    # Top title bar
+    title_bar_h = 120
+    title_bar = np.ones((title_bar_h, grid.shape[1], 3), dtype=np.uint8) * 255
+    main_title = "10 Image Preprocessing Techniques for Computer Vision"
+    text_size = cv2.getTextSize(main_title, cv2.FONT_HERSHEY_DUPLEX, 1.8, 5)[0]
+    x = (title_bar.shape[1] - text_size[0]) // 2
+    y = 85
+    cv2.putText(title_bar, main_title, (x, y), cv2.FONT_HERSHEY_DUPLEX, 1.8, (30, 30, 80), 5, cv2.LINE_AA)
+
+    # Final assembly
+    final = np.vstack((title_bar, grid))
+    final = add_watermark(final, "@akshaysatyam2")
+
+    cv2.imwrite(output_path, final)
+    print(f"Collage saved → {output_path}")
 
 def side_by_side_with_title(original, processed, title):
     """
@@ -176,6 +230,9 @@ def process_image(input_path="Pictures/Picture_1.png", output_dir="Output"):
     orig_watermarked = add_watermark(img.copy(), "@akshaysatyam2")
     cv2.imwrite(os.path.join(output_dir, f"{base_name}_ORIGINAL.jpg"), orig_watermarked)
 
+    processed_images = []
+    titles = []
+
     for func in PREPROCESSORS:
         processed, title = func(img.copy())
         comparison = side_by_side_with_title(img, processed, title)
@@ -187,10 +244,17 @@ def process_image(input_path="Pictures/Picture_1.png", output_dir="Output"):
 
         clean_name = f"{base_name}__{safe_title}_CLEAN.jpg"
         cv2.imwrite(os.path.join(output_dir, clean_name), processed)
+        processed_images.append(processed)
+        titles.append(title)
 
         print(f"Saved: {filename}")
 
     print(f"\nAll images saved to:\n   {os.path.abspath(output_dir)}")
+
+    collage_path = os.path.join(output_dir, f"{base_name}_ALL_TECHNIQUES_COLLAGE.jpg")
+    create_collage(img, processed_images, titles, collage_path)
+
+    print(f"\nAll images saved to:\n {os.path.abspath(output_dir)}")
 
 
 if __name__ == "__main__":
