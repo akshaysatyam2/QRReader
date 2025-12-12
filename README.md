@@ -99,3 +99,5 @@ Successful detections: 6/6 (100.0%)
 Successful decodes: 6/6 (100.0%)
 Average time per image: 0.44 seconds
 ```
+
+Further reading: https://akshaysatyam2.medium.com/10-image-processing-techniques-for-computer-vision-d3df124b803c
