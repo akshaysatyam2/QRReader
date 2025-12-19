@@ -317,7 +317,7 @@ def main():
     """Main function to process images and detect/decode QR codes."""
     parser = argparse.ArgumentParser(description='Detect and decode QR codes using OpenCV and ArUco markers.')
     parser.add_argument('--input_dir', type=str, default='images', help='Directory containing input images.')
-    parser.add_argument('--out_dir', type=str, default='outputs', help='Directory to save output visualizations.')
+    parser.add_argument('--out_dir', type=str, default='Output', help='Directory to save output visualizations.')
     parser.add_argument('--debug', action='store_true', help='Save intermediate debug images.')
     parser.add_argument('--marker_ids', type=int, nargs='+', default=[43, 44, 101, 102], 
                        help='ArUco marker IDs to detect')
