@@ -1,4 +1,9 @@
-## python==3.10.0
+## python=>3.10.0
+
+# Core
 opencv-contrib-python
 numpy
 packaging
+
+# ZXing / ZBar backend
+pyzbar
