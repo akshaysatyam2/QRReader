@@ -173,7 +173,7 @@ def visualize(img, qrs):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--input_dir", default="Pictures")
-    ap.add_argument("--out_dir", default="Output")
+    ap.add_argument("--out_dir", default="Outputs")
     ap.add_argument("--marker_ids", nargs="+", type=int, default=[43, 44, 101, 102])
     args = ap.parse_args()
 
