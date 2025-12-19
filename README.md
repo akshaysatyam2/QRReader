@@ -1,115 +1,184 @@
-# QR Code Detection Project
+# QR Code Detection & Decoding Pipeline
 
-A robust QR code detection and decoding pipeline using OpenCV, designed to handle challenging real-world conditions including noisy, rotated, or low-contrast images.
+A **robust, production-grade QR code detection and decoding system** designed to handle
+real-world failures where OpenCV alone is insufficient.
 
-## Prerequisites
+This project combines:
+- **OpenCV** → detection, geometry, cropping, visualization
+- **ZXing/ZBar (via pyzbar)** → reliable decoding fallback
+- **ArUco markers (optional)** → constrained search & noise reduction
 
-- Python >= 3.10
-- Virtual environment (recommended)
-- OpenCV with contrib modules
+This architecture is similar to what is used in **payment apps, scanners, and industrial CV systems**.
 
-## Installation
-
-1. **Create and activate virtual environment**
-```bash
-python -m venv .venv
-
-# Windows
-.venv\Scripts\activate
-
-# Linux/MacOS
-source .venv/bin/activate
-```
-
-2. **Install dependencies**
-```bash
-pip install -r requirements.txt
-```
-
-**requirements.txt:**
-```
-opencv-contrib-python
-numpy
-packaging
-```
+---
 
 ## Project Structure
 
 ```
-├── python_detect_qr.py        # Main QR detection script
-├── image_processor.py         # Image processing techniques (10 variants)
+
+├── python_detect_qr.py        # Main QR detection & decoding pipeline
+├── image_processor.py         # 10 image preprocessing techniques (optional)
 ├── README.md
 ├── requirements.txt
-├── Pictures/                  # Input images directory
-└── Output/                    # Results and visualizations
-```
+├── Pictures/                 # Input images
+└── Output/                   # Visualized results
 
-## Usage
+````
 
-### Basic QR Detection
+---
+
+## Requirements
+
+- **Python ≥ 3.10**
+- Linux / macOS / Windows  
+  (Linux recommended for ZBar stability)
+
+---
+
+## Installation
+
+### System dependency (ZBar)
+
+**Linux (Ubuntu/Debian):**
 ```bash
-python python_detect_qr.py
-```
-Process images in the default `images/` directory.
+sudo apt install libzbar0
+````
 
-### Custom Directories
+**EndeavourOS / Arch Linux / Manjaro:**
 ```bash
-python python_detect_qr.py --input_dir Pictures --out_dir Output
-```
+sudo pacman -S zbar
+````
 
-### Image Processing
+**macOS (Homebrew):**
+
 ```bash
-python image_processor.py
+brew install zbar
 ```
-Processes `Pictures/Picture_1.png` and saves 10 processing technique variants to `Output/` directory.
 
-### Debug Mode
+**Windows:**
+
+* Install ZBar binaries
+* Or use WSL (recommended)
+
+---
+
+### Python environment
+
 ```bash
-python python_detect_qr.py --debug
+python -m venv .venv
+source .venv/bin/activate   # Linux / macOS
+# .venv\Scripts\activate    # Windows
 ```
 
-### Advanced Options
 ```bash
-python python_detect_qr.py --input_dir Pictures --out_dir Output --debug --marker_ids 43 44 101 102 --log_level DEBUG
-```
-
-### Command Line Arguments
-
-| Argument | Default | Description |
-|----------|---------|-------------|
-| `--input_dir` | `images` | Directory containing input images |
-| `--out_dir` | `Output` | Directory to save output visualizations |
-| `--debug` | `False` | Save intermediate debug images |
-| `--marker_ids` | `43, 44, 101, 102` | ArUco marker IDs to detect |
-| `--log_level` | `INFO` | Logging level (DEBUG, INFO, WARNING, ERROR) |
-
-## Output
-
-**QR Detection Results** (`<filename>_result.jpg`)
-- 🟢 Green polygon + text: Successfully decoded QR
-- 🔴 Red polygon: QR detected but not decoded
-- ⚪ No overlay: QR not detected
-
-**Processing Techniques** (from `image_processor.py`)
-- Grayscale conversion
-- Histogram equalization
-- Adaptive thresholding
-- Gaussian blur
-- Median filtering
-- Morphological operations
-- Canny edge detection
-- Bilateral filtering
-- Contrast stretching
-- CLAHE enhancement
-
-**Processing Statistics**
-```
-Total images: 6
-Successful detections: 6/6 (100.0%)
-Successful decodes: 6/6 (100.0%)
-Average time per image: 0.44 seconds
+pip install -r requirements.txt
 ```
 
 ---
 
-Further reading: [10 Image Processing Techniques for Computer Vision](https://akshaysatyam2.medium.com/10-image-processing-techniques-for-computer-vision-d3df124b803c)
+## Usage
+
+### Basic run (default directories)
+
+```bash
+python python_detect_qr.py
+```
+
+### Custom input/output
+
+```bash
+python python_detect_qr.py --input_dir Pictures --out_dir Output
+```
+
+### With ArUco marker constraints
+
+```bash
+python python_detect_qr.py --marker_ids 43 44 101 102
+```
+
+---
+
+## How Decoding Works (Important)
+
+1. **OpenCV detectAndDecodeMulti**
+2. **Multi-scale retry**
+3. **ROI-based enhanced decode (CLAHE + scaling)**
+4. **ZXing/ZBar fallback (final authority)**
+
+If a QR fails **after ZBar**, it is either:
+
+* invalid
+* decorative
+* missing quiet zone
+* non-standard
+
+No further CV tricks will help.
+
+---
+
+## Output
+
+For each input image:
+
+* `<name>_result.jpg` is generated in `Output/`
+
+Visualization includes:
+
+* 🟢 Green polygon → decoded QR
+* 🔴 Polygon only → detected but undecodable
+* Text rendered on **expanded, centered canvas** (never clipped)
+
+---
+
+## Image Processing Utilities (Optional)
+Update the picture name at the bottom of 'image_processor.py'
+Run:
+```bash
+python image_processor.py
+```
+
+Generates:
+
+* 10 preprocessing variants
+* Side-by-side comparisons
+* Collage output
+
+Useful for **analysis, debugging, and documentation** — not required for decoding.
+
+---
+
+## Typical Performance
+
+```
+Total QR found    : 7
+Successfully read : 7
+Average time/img  : ~0.3s
+```
+
+Decode rate is limited by **QR validity**, not the pipeline.
+
+---
+
+## Design Philosophy
+
+* Detection ≠ decoding
+* Geometry first, decoding second
+* Fallbacks are **explicit**, not magic
+* OpenCV has limits — ZXing/ZBar exists for a reason
+
+This is the **correct end-state** of a serious QR pipeline.
+
+---
+
+## Reference
+
+Article:
+[**10 Image Processing Techniques for Computer Vision**](https://akshaysatyam2.medium.com/10-image-processing-techniques-for-computer-vision-d3df124b803c)
+
+---
+
+> Note
+> `pyzbar` **requires system-level ZBar** (`libzbar0` / `zbar`)
+> It will NOT work with pip alone.
+
+---
