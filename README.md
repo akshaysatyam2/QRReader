@@ -21,7 +21,8 @@ This architecture is similar to what is used in **payment apps, scanners, and in
 ├── README.md
 ├── requirements.txt
 ├── Pictures/                 # Input images
-└── Output/                   # Visualized results
+├── Output/                   # Visualized results for image processor
+└── Outputs/                  # Visualized results for QR Reader
 
 ````
 
